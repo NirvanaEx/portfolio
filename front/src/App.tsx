@@ -13,6 +13,7 @@ const PROFILE = {
 
 const NAV_ITEMS = [
   { label: "Проекты", href: "/#projects" },
+  { label: "Услуги", href: "/services" },
   { label: "Обо мне", href: "/about" },
 ];
 
@@ -26,6 +27,7 @@ const getProjectIdFromPath = () => {
 
 const isAboutPage = () => window.location.pathname === "/about";
 const isAdminPage = () => window.location.pathname === "/admin";
+const isServicesPage = () => window.location.pathname === "/services";
 
 const getToken = () => {
   if (typeof window === "undefined") {
@@ -330,6 +332,65 @@ const HomePage = ({ items }: { items: Project[] }) => (
   </main>
 );
 
+const ContactCard = () => (
+  <div className="about-card">
+    <h3 className="about-card__title">Контакты</h3>
+    <a className="about-contact" href="tel:+998909883696">
+      <span className="about-contact__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M5 5c2.5 5.2 6.8 9.5 12 12l2.5-2.5c.4-.4 1-.5 1.5-.3l2.7 1a1 1 0 0 1 .6 1.2 4 4 0 0 1-4 3.1C9 19.5 4.5 15 3.5 8.7a4 4 0 0 1 3.1-4 1 1 0 0 1 1.2.6l1 2.7c.2.5.1 1.1-.3 1.5L5 5z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+      <span>+998 90 988 36 96</span>
+    </a>
+    <a className="about-contact" href="https://t.me/nowitismy" target="_blank" rel="noreferrer">
+      <span className="about-contact__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M20.5 4.5L3.6 11.3c-.8.3-.8 1.4.1 1.6l3.8 1.1 1.5 4.5c.2.6.9.7 1.3.3l2.2-2.2 4 2.9c.5.4 1.3.1 1.4-.6l2.7-14c.1-.6-.5-1.1-1.1-.9z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+      <span>@nowitismy</span>
+    </a>
+    <a className="about-contact" href="mailto:id30313161@gmail.com">
+      <span className="about-contact__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M4 6h16v12H4z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M4 7l8 6 8-6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+      <span>id30313161@gmail.com</span>
+    </a>
+  </div>
+);
+
 const AboutPage = () => (
   <main className="shell main">
     <section className="section about-page">
@@ -367,8 +428,21 @@ const AboutPage = () => (
             Разработка десятков вспомогательных и автоматизирующих сервисов для оптимизации
             внутренних процессов компании.
           </p>
-          <h2 className="about-subtitle">Разработка под ключ</h2>
-          <p>
+        </div>
+        <ContactCard />
+      </div>
+    </section>
+  </main>
+);
+
+const ServicesPage = () => (
+  <main className="shell main">
+    <section className="section about-page">
+      <p className="eyebrow">Услуги</p>
+      <h1>Разработка под ключ</h1>
+      <div className="about-grid">
+        <div className="about-text">
+          <p className="about-role">
             Разрабатываю сайты и онлайн-сервисы под ключ — от идеи до полностью готового и
             работающего результата. Объясняю все простым языком, без сложных терминов.
           </p>
@@ -404,62 +478,7 @@ const AboutPage = () => (
           </ul>
           <p>Подходит как для бизнеса, так и для личных проектов.</p>
         </div>
-        <div className="about-card">
-          <h3 className="about-card__title">Контакты</h3>
-          <a className="about-contact" href="tel:+998909883696">
-            <span className="about-contact__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path
-                  d="M5 5c2.5 5.2 6.8 9.5 12 12l2.5-2.5c.4-.4 1-.5 1.5-.3l2.7 1a1 1 0 0 1 .6 1.2 4 4 0 0 1-4 3.1C9 19.5 4.5 15 3.5 8.7a4 4 0 0 1 3.1-4 1 1 0 0 1 1.2.6l1 2.7c.2.5.1 1.1-.3 1.5L5 5z"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-            <span>+998 90 988 36 96</span>
-          </a>
-          <a className="about-contact" href="https://t.me/nowitsmy" target="_blank" rel="noreferrer">
-            <span className="about-contact__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path
-                  d="M20.5 4.5L3.6 11.3c-.8.3-.8 1.4.1 1.6l3.8 1.1 1.5 4.5c.2.6.9.7 1.3.3l2.2-2.2 4 2.9c.5.4 1.3.1 1.4-.6l2.7-14c.1-.6-.5-1.1-1.1-.9z"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-            <span>@nowitismy</span>
-          </a>
-          <a className="about-contact" href="mailto:id30313161@gmail.com">
-            <span className="about-contact__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path
-                  d="M4 6h16v12H4z"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M4 7l8 6 8-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-            <span>id30313161@gmail.com</span>
-          </a>
-        </div>
+        <ContactCard />
       </div>
     </section>
   </main>
@@ -1406,6 +1425,7 @@ function App() {
     ? projectData.find((project) => project.id === projectId) ?? null
     : null;
   const showAbout = isAboutPage();
+  const showServices = isServicesPage();
   const showAdmin = isAdminPage();
 
   const fetchProjects = useCallback(async () => {
@@ -1489,6 +1509,8 @@ function App() {
         <ProjectPage project={activeProject} isLoading={isLoading} />
       ) : showAbout ? (
         <AboutPage />
+      ) : showServices ? (
+        <ServicesPage />
       ) : (
         <HomePage items={projectData} />
       )}
