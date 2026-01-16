@@ -900,12 +900,18 @@
 }
 
 .carousel-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  min-height: 8px;
+  padding: 0;
+  border-radius: 999px;
   border: 1px solid var(--stroke);
-  background: #fff;
+  background: transparent;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  line-height: 0;
   transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
@@ -917,6 +923,7 @@
 .carousel-dot.is-active {
   background: var(--accent);
   border-color: var(--accent);
+  transform: scale(1.2);
 }
 
 .carousel__button {
@@ -964,13 +971,13 @@
 .gallery-item {
   border: 1px solid var(--stroke);
   border-radius: 20px;
-  background: rgba(248, 240, 231, 0.7);
+  background: linear-gradient(135deg, rgba(31, 26, 23, 0.06), rgba(31, 26, 23, 0.02));
   min-height: 200px;
   overflow: hidden;
   aspect-ratio: 16 / 9;
   display: grid;
   place-items: center;
-  padding: 10px;
+  padding: 8px;
   transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
