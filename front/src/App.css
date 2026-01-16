@@ -620,6 +620,7 @@
   overflow: hidden;
   background: var(--surface);
   transition: transform 0.2s ease, border-color 0.2s ease;
+  min-width: 0;
 }
 
 .project-card:hover {
@@ -660,6 +661,7 @@
 .project-card__top h3 {
   margin: 0;
   font-size: 1.2rem;
+  overflow-wrap: anywhere;
 }
 
 .project-year {
@@ -670,6 +672,7 @@
 .project-card__body p {
   margin: 0;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .project-cta {
@@ -1161,6 +1164,36 @@
   }
 }
 
+@media (max-width: 1080px) {
+  .shell {
+    padding: 0 22px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.2rem);
+  }
+
+  .project-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .shell {
+    padding: 0 18px;
+  }
+
+  .hero__actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .project-card img,
+  .project-placeholder {
+    height: 200px;
+  }
+}
+
 @media (max-width: 640px) {
   .footer-bottom {
     flex-direction: column;
@@ -1169,6 +1202,11 @@
 
   .project-grid {
     grid-template-columns: 1fr;
+  }
+
+  .project-card img,
+  .project-placeholder {
+    height: 180px;
   }
 
   .lightbox__content {

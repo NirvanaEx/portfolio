@@ -27,6 +27,7 @@ body {
     radial-gradient(900px 420px at 8% -10%, rgba(226, 109, 45, 0.18), transparent 60%),
     radial-gradient(720px 420px at 90% 10%, rgba(26, 25, 24, 0.08), transparent 65%),
     linear-gradient(180deg, #fbf7f2 0%, #f1e7dc 100%);
+  overflow-x: hidden;
 }
 
 body::before {
