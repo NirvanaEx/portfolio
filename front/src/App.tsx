@@ -7,7 +7,7 @@ import { projects } from "./data/projects";
 import type { Project, ProjectLink } from "./data/projects";
 
 const PROFILE = {
-  name: "Dias",
+  name: "Dias Yuldashbayev",
   email: "id30313161@gmail.com",
 };
 
@@ -334,31 +334,95 @@ const AboutPage = () => (
   <main className="shell main">
     <section className="section about-page">
       <p className="eyebrow">Обо мне</p>
-      <h1>Делаю продуктовые интерфейсы и быстрые веб‑приложения.</h1>
+      <h1>Ведущий инженер-программист</h1>
       <div className="about-grid">
         <div className="about-text">
-          <p>
-            Работаю с задачами, где важны ясность интерфейса и быстрый путь пользователя к
-            результату. Люблю минимальные, но выразительные решения.
+          <p className="about-role">
+            Занимаюсь разработкой и внедрением программного обеспечения для внутренних и
+            внешних нужд компании.
           </p>
+          <h2 className="about-subtitle">Основные проекты и направления работы</h2>
+          <ul className="about-list">
+            <li>
+              Разработка системы сертификации для отдела обучения (автоматизация выдачи
+              сертификатов по итогам курсов).
+            </li>
+            <li>
+              ATM: Safe Sky — первая в Средней Азии система управления и контроля
+              беспилотных летательных аппаратов: выдача разрешений на полеты, отслеживание
+              местоположения, контроль зон и ограничений.
+            </li>
+            <li>
+              Разработка внутренней CRM-системы для сотрудников:
+              оформление справок с места работы, бронирование служебного транспорта,
+              бронирование отелей, спортзала, авиабилетов, чек-листы и внутренние сервисы.
+            </li>
+            <li>Система инспекции и аудита территориальных подразделений.</li>
+            <li>Электронная библиотека корпоративных документов.</li>
+            <li>Разработка и сопровождение РТО-систем.</li>
+            <li>GROUND & Delivery — система управления наземным обслуживанием аэропорта.</li>
+            <li>NOTAM-система — парсинг, обработка и сортировка авиационных NOTAM-сообщений.</li>
+          </ul>
           <p>
-            В проектах беру на себя структуру интерфейса, визуальную систему и аккуратную
-            реализацию.
+            Разработка десятков вспомогательных и автоматизирующих сервисов для оптимизации
+            внутренних процессов компании.
           </p>
         </div>
         <div className="about-card">
-          <div className="about-item">
-            <span className="about-label">Фокус</span>
-            <span>Интерфейсы · Продукты</span>
-          </div>
-          <div className="about-item">
-            <span className="about-label">Формат</span>
-            <span>Веб‑приложения</span>
-          </div>
-          <div className="about-item">
-            <span className="about-label">Стек</span>
-            <span>React · TypeScript · Vite</span>
-          </div>
+          <h3 className="about-card__title">Контакты</h3>
+          <a className="about-contact" href="tel:+998909883696">
+            <span className="about-contact__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M5 5c2.5 5.2 6.8 9.5 12 12l2.5-2.5c.4-.4 1-.5 1.5-.3l2.7 1a1 1 0 0 1 .6 1.2 4 4 0 0 1-4 3.1C9 19.5 4.5 15 3.5 8.7a4 4 0 0 1 3.1-4 1 1 0 0 1 1.2.6l1 2.7c.2.5.1 1.1-.3 1.5L5 5z"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+            <span>+998 90 988 36 96</span>
+          </a>
+          <a className="about-contact" href="https://t.me/nowitsmy" target="_blank" rel="noreferrer">
+            <span className="about-contact__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M20.5 4.5L3.6 11.3c-.8.3-.8 1.4.1 1.6l3.8 1.1 1.5 4.5c.2.6.9.7 1.3.3l2.2-2.2 4 2.9c.5.4 1.3.1 1.4-.6l2.7-14c.1-.6-.5-1.1-1.1-.9z"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+            <span>@nowitsmy</span>
+          </a>
+          <a className="about-contact" href="mailto:id30313161@gmail.com">
+            <span className="about-contact__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M4 6h16v12H4z"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M4 7l8 6 8-6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+            <span>id30313161@gmail.com</span>
+          </a>
         </div>
       </div>
     </section>
