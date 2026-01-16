@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+
+APP=/srv/apps/portfolio
+GIT_DIR=/srv/git/portfolio.git
+BRANCH=deploy
+
+while read -r oldrev newrev ref; do
+  if [ "$ref" = "refs/heads/$BRANCH" ]; then
+    git --work-tree="$APP" --git-dir="$GIT_DIR" checkout -f "$BRANCH"
+    cd "$APP"
+    docker compose build --pull
+    docker compose up -d
+  fi
+done

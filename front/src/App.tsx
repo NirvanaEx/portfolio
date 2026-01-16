@@ -1,6 +1,6 @@
 // src\App.tsx
 import { useCallback, useEffect, useState } from "react";
-import type { FormEvent } from "react";
+import type { FormEvent, ReactNode } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import "./App.css";
 import { projects } from "./data/projects";
@@ -56,6 +56,120 @@ const createIdFromTitle = (title: string) => {
     .replace(/^-+|-+$/g, "");
   return slug || `project-${Date.now()}`;
 };
+
+const IconButton = ({
+  label,
+  onClick,
+  type = "button",
+  className = "",
+  disabled = false,
+  children,
+}: {
+  label: string;
+  onClick?: () => void;
+  type?: "button" | "submit" | "reset";
+  className?: string;
+  disabled?: boolean;
+  children: ReactNode;
+}) => (
+  <button
+    type={type}
+    className={`icon-button ${className}`.trim()}
+    onClick={onClick}
+    aria-label={label}
+    title={label}
+    disabled={disabled}
+  >
+    {children}
+    <span className="sr-only">{label}</span>
+  </button>
+);
+
+const IconPlus = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M12 5v14M5 12h14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const IconEdit = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M4 20l4.5-1 9.5-9.5-3.5-3.5L5 15.5 4 20z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M13.5 6.5l3.5 3.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const IconTrash = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M5 7h14M9 7l1-2h4l1 2M9 10v7M15 10v7M7 7l1 12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const IconClose = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M6 6l12 12M18 6l-12 12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const IconExport = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M12 3v11M8 10l4 4 4-4M4 17h16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const IconLogout = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M10 7v-2h8v14h-8v-2M14 12H4M8 8l-4 4 4 4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 
 const uploadFile = async (file: File, token: string | null) => {
   const data = new FormData();
@@ -275,6 +389,12 @@ type ProjectForm = {
   gallery: ProjectFormGallery[];
 };
 
+type Toast = {
+  id: number;
+  message: string;
+  kind: "success" | "error";
+};
+
 const emptyForm: ProjectForm = {
   id: "",
   title: "",
@@ -295,8 +415,8 @@ const toForm = (project: Project): ProjectForm => ({
   description: project.description,
   year: project.year,
   cover: project.cover ?? "",
-  stack: project.stack.join(", "),
-  tools: project.tools.join(", "),
+  stack: project.stack.join("\n"),
+  tools: project.tools.join("\n"),
   links: project.links.length
     ? project.links.map((link) => ({
         label: link.label,
@@ -314,13 +434,14 @@ const toForm = (project: Project): ProjectForm => ({
 
 const parseList = (value: string) =>
   value
-    .split(",")
+    .split(/[\n,]+/)
     .map((item) => item.trim())
     .filter(Boolean);
 
 const AdminPage = ({
   items,
   token,
+  isLoading,
   onLogin,
   onLogout,
   onCreate,
@@ -329,6 +450,7 @@ const AdminPage = ({
 }: {
   items: Project[];
   token: string | null;
+  isLoading: boolean;
   onLogin: (username: string, password: string) => Promise<void>;
   onLogout: () => void;
   onCreate: (payload: Project) => Promise<Project>;
@@ -341,15 +463,31 @@ const AdminPage = ({
   const [login, setLogin] = useState("admin");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingCount, setUploadingCount] = useState(0);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const isBusy = isSubmitting || uploadingCount > 0;
+  const busyLabel = isSubmitting ? "Сохраняем данные..." : "Загрузка файлов...";
+
+  const pushToast = (message: string, kind: Toast["kind"] = "success") => {
+    const id = Date.now() + Math.floor(Math.random() * 1000);
+    setToasts((prev) => [...prev, { id, message, kind }]);
+    window.setTimeout(() => {
+      setToasts((prev) => prev.filter((item) => item.id !== id));
+    }, 3000);
+  };
 
   const handleUpload = async (file: File) => {
     setError(null);
+    setUploadingCount((prev) => prev + 1);
     try {
       const url = await uploadFile(file, token);
       return url;
     } catch (err) {
       setError("Не удалось загрузить файл. Проверьте работу API.");
       return null;
+    } finally {
+      setUploadingCount((prev) => Math.max(0, prev - 1));
     }
   };
 
@@ -367,8 +505,10 @@ const AdminPage = ({
         setEditingId(null);
         setForm(emptyForm);
       }
+      pushToast("Проект удален");
     } catch (err) {
       setError("Не удалось удалить проект.");
+      pushToast("Не удалось удалить проект", "error");
     }
   };
 
@@ -451,14 +591,18 @@ const AdminPage = ({
       gallery,
     };
 
+    const isEdit = Boolean(editingId);
+
     try {
-      const saved = editingId
+      const saved = isEdit
         ? await onUpdate(editingId, nextProject)
         : await onCreate(nextProject);
       setEditingId(saved.id);
       setForm(toForm(saved));
+      pushToast(isEdit ? "Изменения сохранены" : "Проект добавлен");
     } catch (err) {
       setError("Не удалось сохранить проект.");
+      pushToast("Не удалось сохранить проект", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -499,10 +643,11 @@ const AdminPage = ({
           <div>
             <p className="eyebrow">Админка</p>
             <h1>Вход</h1>
+            <p className="admin-note">Введите логин и пароль администратора.</p>
           </div>
         </section>
         <form
-          className="admin-form"
+          className="admin-form admin-form--login admin-card"
           onSubmit={async (event) => {
             event.preventDefault();
             setError(null);
@@ -548,44 +693,26 @@ const AdminPage = ({
           <p className="admin-note">
             Данные сохраняются в базе данных. Загрузка файлов работает через API.
           </p>
+          <div className="admin-stats">
+            {isLoading ? (
+              <span className="admin-pill admin-pill--skeleton admin-skeleton" />
+            ) : (
+              <span className="admin-pill">Проектов: {items.length}</span>
+            )}
+          </div>
         </div>
         <div className="admin-actions">
-          <button type="button" className="button button--outline" onClick={handleExport}>
-            Экспорт JSON
-          </button>
-          <button type="button" className="button button--ghost" onClick={onLogout}>
-            Выйти
-          </button>
+          <IconButton label="Экспорт JSON" onClick={handleExport}>
+            <IconExport />
+          </IconButton>
+          <IconButton label="Выйти" onClick={onLogout}>
+            <IconLogout />
+          </IconButton>
         </div>
       </section>
 
       <section className="admin-grid">
-        <div className="admin-list">
-          <div className="admin-list__header">
-            <h2>Список</h2>
-            <button type="button" className="button button--ghost" onClick={handleNew}>
-              Новый проект
-            </button>
-          </div>
-          {items.map((item) => (
-            <div key={item.id} className="admin-list__item">
-              <div className="admin-list__meta">
-                <strong>{item.title}</strong>
-                <span className="muted">{item.year}</span>
-              </div>
-              <div className="admin-list__actions">
-                <button type="button" className="button button--ghost" onClick={() => handleEdit(item)}>
-                  Редактировать
-                </button>
-                <button type="button" className="button button--ghost" onClick={() => handleDelete(item.id)}>
-                  Удалить
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <form className="admin-form" onSubmit={handleSubmit}>
+        <form className="admin-form admin-card" onSubmit={handleSubmit} aria-busy={isBusy}>
           <div className="admin-inline">
             <div className="admin-field">
               <label className="admin-label">ID</label>
@@ -643,8 +770,17 @@ const AdminPage = ({
               onChange={(event) => setForm((prev) => ({ ...prev, cover: event.target.value }))}
               placeholder="/screens/alpha-cover.jpg"
             />
+            <p className="admin-hint">Можно загрузить файл или вставить прямую ссылку.</p>
+            <div className="admin-media">
+              {form.cover ? (
+                <img className="admin-media__img" src={form.cover} alt="Обложка" />
+              ) : (
+                <div className="admin-media__placeholder">Превью обложки</div>
+              )}
+            </div>
             <div className="admin-inline">
               <input
+                className="admin-file"
                 type="file"
                 accept="image/*"
                 onChange={async (event) => {
@@ -657,47 +793,40 @@ const AdminPage = ({
                   }
                 }}
               />
-              <button
-                type="button"
-                className="button button--ghost"
-                onClick={() => setForm((prev) => ({ ...prev, cover: "" }))}
-              >
-                Очистить
-              </button>
+              <IconButton label="Очистить" onClick={() => setForm((prev) => ({ ...prev, cover: "" }))}>
+                <IconClose />
+              </IconButton>
             </div>
-            {form.cover && <img className="admin-preview" src={form.cover} alt="Обложка" />}
           </div>
 
-          <div className="admin-inline">
-            <div className="admin-field">
-              <label className="admin-label">Технологии (через запятую)</label>
-              <input
-                className="admin-input"
-                value={form.stack}
-                onChange={(event) => setForm((prev) => ({ ...prev, stack: event.target.value }))}
-                placeholder="React, TypeScript, Vite"
-              />
-            </div>
-            <div className="admin-field">
-              <label className="admin-label">Инструменты (через запятую)</label>
-              <input
-                className="admin-input"
-                value={form.tools}
-                onChange={(event) => setForm((prev) => ({ ...prev, tools: event.target.value }))}
-                placeholder="Figma, Node.js"
-              />
-            </div>
+          <div className="admin-field">
+            <label className="admin-label">Технологии (каждая с новой строки)</label>
+            <textarea
+              className="admin-textarea admin-textarea--compact"
+              value={form.stack}
+              onChange={(event) => setForm((prev) => ({ ...prev, stack: event.target.value }))}
+              placeholder={"React\nTypeScript\nVite"}
+            />
+          </div>
+          <div className="admin-field">
+            <label className="admin-label">Инструменты (каждая с новой строки)</label>
+            <textarea
+              className="admin-textarea admin-textarea--compact"
+              value={form.tools}
+              onChange={(event) => setForm((prev) => ({ ...prev, tools: event.target.value }))}
+              placeholder={"Figma\nNode.js"}
+            />
           </div>
 
           <div className="admin-section">
             <div className="admin-section__header">
               <span className="admin-label">Ссылки</span>
-              <button type="button" className="button button--ghost" onClick={addLink}>
-                Добавить
-              </button>
+              <IconButton label="Добавить ссылку" onClick={addLink}>
+                <IconPlus />
+              </IconButton>
             </div>
             {form.links.map((link, index) => (
-              <div key={`${link.label}-${index}`} className="admin-row">
+              <div key={index} className="admin-row">
                 <div className="admin-inline">
                   <input
                     className="admin-input"
@@ -723,9 +852,9 @@ const AdminPage = ({
                   placeholder="https://example.com"
                   onChange={(event) => updateLink(index, "url", event.target.value)}
                 />
-                <button
-                  type="button"
-                  className="button button--ghost"
+                <IconButton
+                  label="Удалить ссылку"
+                  className="icon-button--danger"
                   onClick={() =>
                     setForm((prev) => ({
                       ...prev,
@@ -733,8 +862,8 @@ const AdminPage = ({
                     }))
                   }
                 >
-                  Удалить
-                </button>
+                  <IconTrash />
+                </IconButton>
               </div>
             ))}
           </div>
@@ -742,71 +871,157 @@ const AdminPage = ({
           <div className="admin-section">
             <div className="admin-section__header">
               <span className="admin-label">Дополнительные скрины</span>
-              <button type="button" className="button button--ghost" onClick={addGallery}>
-                Добавить
-              </button>
+              <IconButton label="Добавить скрин" onClick={addGallery}>
+                <IconPlus />
+              </IconButton>
             </div>
+            <p className="admin-hint">Добавьте подпись и загрузите изображение проекта.</p>
             {form.gallery.map((screen, index) => (
-              <div key={`${screen.label}-${index}`} className="admin-row">
-                <input
-                  className="admin-input"
-                  value={screen.label}
-                  placeholder="Подпись"
-                  onChange={(event) => updateGallery(index, "label", event.target.value)}
-                />
-                <input
-                  className="admin-input"
-                  value={screen.src}
-                  placeholder="/screens/alpha-1.jpg"
-                  onChange={(event) => updateGallery(index, "src", event.target.value)}
-                />
-                <div className="admin-inline">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={async (event) => {
-                      const file = event.target.files?.[0];
-                      if (file) {
-                        const src = await handleUpload(file);
-                        if (src) {
-                          updateGallery(index, "src", src);
-                        }
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    className="button button--ghost"
-                    onClick={() => updateGallery(index, "src", "")}
-                  >
-                    Очистить
-                  </button>
-                  <button
-                    type="button"
-                    className="button button--ghost"
-                    onClick={() =>
-                      setForm((prev) => ({
-                        ...prev,
-                        gallery: prev.gallery.filter((_, itemIndex) => itemIndex !== index),
-                      }))
-                    }
-                  >
-                    Удалить
-                  </button>
+              <div key={index} className="admin-row admin-row--gallery">
+                <div className="admin-row__media">
+                  {screen.src ? (
+                    <img className="admin-media__img" src={screen.src} alt={screen.label} />
+                  ) : (
+                    <div className="admin-media__placeholder">Скрин</div>
+                  )}
                 </div>
-                {screen.src && <img className="admin-preview" src={screen.src} alt={screen.label} />}
+                <div className="admin-row__fields">
+                  <input
+                    className="admin-input"
+                    value={screen.label}
+                    placeholder="Подпись"
+                    onChange={(event) => updateGallery(index, "label", event.target.value)}
+                  />
+                  <input
+                    className="admin-input"
+                    value={screen.src}
+                    placeholder="/screens/alpha-1.jpg"
+                    onChange={(event) => updateGallery(index, "src", event.target.value)}
+                  />
+                  <div className="admin-inline">
+                    <input
+                      className="admin-file"
+                      type="file"
+                      accept="image/*"
+                      onChange={async (event) => {
+                        const file = event.target.files?.[0];
+                        if (file) {
+                          const src = await handleUpload(file);
+                          if (src) {
+                            updateGallery(index, "src", src);
+                          }
+                        }
+                      }}
+                    />
+                    <IconButton label="Очистить" onClick={() => updateGallery(index, "src", "")}>
+                      <IconClose />
+                    </IconButton>
+                    <IconButton
+                      label="Удалить скрин"
+                      className="icon-button--danger"
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          gallery: prev.gallery.filter((_, itemIndex) => itemIndex !== index),
+                        }))
+                      }
+                    >
+                      <IconTrash />
+                    </IconButton>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
 
           {error && <p className="admin-error">{error}</p>}
-          <button type="submit" className="button button--primary">
+          <button type="submit" className="button button--primary" disabled={isSubmitting}>
             {isSubmitting ? "Сохранение..." : editingId ? "Сохранить изменения" : "Добавить проект"}
           </button>
         </form>
+
+        <div className="admin-list admin-card">
+          <div className="admin-list__header">
+            <h2>Список</h2>
+            <IconButton label="Новый проект" onClick={handleNew}>
+              <IconPlus />
+            </IconButton>
+          </div>
+          {isLoading ? (
+            <div className="admin-skeleton-list">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={`skeleton-${index}`} className="admin-list__item admin-skeleton">
+                  <div className="admin-thumb admin-skeleton" />
+                  <div className="admin-skeleton-lines">
+                    <div className="admin-skeleton admin-skeleton--line" />
+                    <div className="admin-skeleton admin-skeleton--line short" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : items.length === 0 ? (
+            <p className="admin-empty">Пока нет проектов. Добавьте первый.</p>
+          ) : (
+            items.map((item) => (
+              <div
+                key={item.id}
+                className={`admin-list__item${editingId === item.id ? " is-active" : ""}`}
+              >
+                <div className="admin-thumb">
+                  {item.cover ? (
+                    <img src={item.cover} alt={item.title} />
+                  ) : (
+                    <span>Нет</span>
+                  )}
+                </div>
+                <div className="admin-list__meta">
+                  <strong>{item.title}</strong>
+                  <span className="admin-list__summary">{item.summary}</span>
+                  <span className="muted">{item.year}</span>
+                </div>
+                <div className="admin-list__actions">
+                  <IconButton label="Редактировать" onClick={() => handleEdit(item)}>
+                    <IconEdit />
+                  </IconButton>
+                  <IconButton
+                    label="Удалить"
+                    className="icon-button--danger"
+                    onClick={() => handleDelete(item.id)}
+                  >
+                    <IconTrash />
+                  </IconButton>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </section>
+
+      {isBusy && (
+        <div className="admin-overlay" role="status" aria-live="polite">
+          <div className="admin-overlay__card">
+            <span className="admin-spinner" />
+            <span>{busyLabel}</span>
+          </div>
+        </div>
+      )}
+
+      {toasts.length > 0 && (
+        <div className="toast-stack" aria-live="polite">
+          {toasts.map((toast) => (
+            <div key={toast.id} className={`toast toast--${toast.kind}`}>
+              {toast.message}
+            </div>
+          ))}
+        </div>
+      )}
     </main>
   );
+};
+
+type LightboxItem = {
+  src?: string;
+  label: string;
 };
 
 const ProjectPage = ({
@@ -819,11 +1034,14 @@ const ProjectPage = ({
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start" });
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
-  const [activeSlide, setActiveSlide] = useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [snapCount, setSnapCount] = useState(0);
+  const [lightbox, setLightbox] = useState<{
+    items: LightboxItem[];
+    index: number;
+  } | null>(null);
 
-  const galleryLength = project?.gallery.length ?? 0;
-  const activeItem =
-    project && activeSlide !== null ? project.gallery[activeSlide] : null;
+  const lightboxItem = lightbox ? lightbox.items[lightbox.index] : null;
 
   const onSelect = useCallback(() => {
     if (!emblaApi) {
@@ -831,6 +1049,7 @@ const ProjectPage = ({
     }
     setCanScrollPrev(emblaApi.canScrollPrev());
     setCanScrollNext(emblaApi.canScrollNext());
+    setSelectedIndex(emblaApi.selectedScrollSnap());
   }, [emblaApi]);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
@@ -840,30 +1059,51 @@ const ProjectPage = ({
     if (!emblaApi) {
       return;
     }
+    const handleReInit = () => {
+      setSnapCount(emblaApi.scrollSnapList().length);
+      onSelect();
+    };
+    setSnapCount(emblaApi.scrollSnapList().length);
     onSelect();
-    emblaApi.on("select", onSelect).on("reInit", onSelect);
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", handleReInit);
+    return () => {
+      emblaApi.off("select", onSelect);
+      emblaApi.off("reInit", handleReInit);
+    };
   }, [emblaApi, onSelect]);
 
   useEffect(() => {
-    if (!project) {
-      return;
-    }
-    if (activeSlide === null) {
+    if (!lightbox) {
       return;
     }
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setActiveSlide(null);
+        setLightbox(null);
       }
       if (event.key === "ArrowRight") {
-        setActiveSlide((prev) =>
-          prev === null ? prev : Math.min(prev + 1, project.gallery.length - 1),
-        );
+        setLightbox((prev) => {
+          if (!prev) {
+            return prev;
+          }
+          return {
+            ...prev,
+            index: Math.min(prev.index + 1, prev.items.length - 1),
+          };
+        });
       }
       if (event.key === "ArrowLeft") {
-        setActiveSlide((prev) => (prev === null ? prev : Math.max(prev - 1, 0)));
+        setLightbox((prev) => {
+          if (!prev) {
+            return prev;
+          }
+          return {
+            ...prev,
+            index: Math.max(prev.index - 1, 0),
+          };
+        });
       }
     };
     document.addEventListener("keydown", handleKeyDown);
@@ -871,7 +1111,7 @@ const ProjectPage = ({
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [activeSlide, galleryLength, project]);
+  }, [lightbox]);
 
   if (!project) {
     if (isLoading) {
@@ -895,6 +1135,13 @@ const ProjectPage = ({
     );
   }
 
+  const coverItems: LightboxItem[] = [
+    {
+      src: project.cover ?? undefined,
+      label: project.title || "Обложка проекта",
+    },
+  ];
+
   return (
     <main className="shell main">
       <section className="project-header">
@@ -906,13 +1153,18 @@ const ProjectPage = ({
 
       <section className="project-layout">
         <div className="project-main">
-          <div className="project-cover">
+          <button
+            type="button"
+            className="project-cover"
+            onClick={() => setLightbox({ items: coverItems, index: 0 })}
+            aria-label="Открыть обложку"
+          >
             {project.cover ? (
               <img src={project.cover} alt={project.title} />
             ) : (
               <div className="project-cover__placeholder">Обложка проекта</div>
             )}
-          </div>
+          </button>
           <div className="project-text">
             <h2>Краткое описание</h2>
             <p className="project-summary">{project.summary}</p>
@@ -940,7 +1192,15 @@ const ProjectPage = ({
                       key={`${screen.label}-${index}`}
                       type="button"
                       className="embla__slide"
-                      onClick={() => setActiveSlide(index)}
+                      onClick={() =>
+                        setLightbox({
+                          items: project.gallery.map((item) => ({
+                            src: item.src ?? undefined,
+                            label: item.label || project.title,
+                          })),
+                          index,
+                        })
+                      }
                     >
                       <div className="gallery-item">
                         {screen.src ? (
@@ -963,6 +1223,21 @@ const ProjectPage = ({
                 →
               </button>
             </div>
+            {snapCount > 1 && (
+              <div className="carousel-dots" role="tablist" aria-label="Слайды">
+                {Array.from({ length: snapCount }).map((_, index) => (
+                  <button
+                    key={`dot-${index}`}
+                    type="button"
+                    className={`carousel-dot${index === selectedIndex ? " is-active" : ""}`}
+                    onClick={() => emblaApi?.scrollTo(index)}
+                    aria-label={`Слайд ${index + 1}`}
+                    aria-current={index === selectedIndex}
+                    role="tab"
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <aside className="project-aside">
@@ -998,23 +1273,23 @@ const ProjectPage = ({
         </aside>
       </section>
 
-      {activeItem && (
-        <div className="lightbox" onClick={() => setActiveSlide(null)} role="dialog" aria-modal="true">
+      {lightboxItem && (
+        <div className="lightbox" onClick={() => setLightbox(null)} role="dialog" aria-modal="true">
           <div className="lightbox__content" onClick={(event) => event.stopPropagation()}>
             <button
               type="button"
               className="lightbox__close"
-              onClick={() => setActiveSlide(null)}
+              onClick={() => setLightbox(null)}
               aria-label="Закрыть"
             >
               ×
             </button>
-            {activeItem.src ? (
-              <img src={activeItem.src} alt={activeItem.label} />
+            {lightboxItem.src ? (
+              <img src={lightboxItem.src} alt={lightboxItem.label} />
             ) : (
-              <div className="lightbox__placeholder">{activeItem.label}</div>
+              <div className="lightbox__placeholder">{lightboxItem.label}</div>
             )}
-            <span className="lightbox__caption">{activeItem.label}</span>
+            <span className="lightbox__caption">{lightboxItem.label}</span>
           </div>
         </div>
       )}
@@ -1105,6 +1380,7 @@ function App() {
         <AdminPage
           items={projectData}
           token={authToken}
+          isLoading={isLoading}
           onLogin={handleLogin}
           onLogout={handleLogout}
           onCreate={handleCreate}
