@@ -321,7 +321,7 @@ const HomePage = ({ items }: { items: Project[] }) => (
                   <span key={item}>{item}</span>
                 ))}
               </div>
-              <span className="project-cta">Открыть кейс</span>
+              <span className="project-cta">Подробнее</span>
             </div>
           </a>
         ))}

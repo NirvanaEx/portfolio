@@ -621,6 +621,8 @@
   background: var(--surface);
   transition: transform 0.2s ease, border-color 0.2s ease;
   min-width: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
 }
 
 .project-card:hover {
@@ -649,6 +651,7 @@
   padding: 20px;
   display: grid;
   gap: 12px;
+  align-content: start;
 }
 
 .project-card__top {
@@ -673,6 +676,7 @@
   margin: 0;
   color: var(--muted);
   overflow-wrap: anywhere;
+  min-height: 48px;
 }
 
 .project-cta {
@@ -680,6 +684,7 @@
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: var(--accent);
+  margin-top: auto;
 }
 
 .tag-row {
