@@ -7,7 +7,7 @@ import { projects } from "./data/projects";
 import type { Project, ProjectLink } from "./data/projects";
 
 const PROFILE = {
-  name: "Dias Yuldashbayev",
+  name: "Dias",
   email: "id30313161@gmail.com",
 };
 
