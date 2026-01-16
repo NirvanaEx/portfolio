@@ -11,7 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
-uploads
+/uploads
 api/generated
 
 # Editor directories and files
