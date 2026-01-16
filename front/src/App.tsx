@@ -367,6 +367,42 @@ const AboutPage = () => (
             Разработка десятков вспомогательных и автоматизирующих сервисов для оптимизации
             внутренних процессов компании.
           </p>
+          <h2 className="about-subtitle">Разработка под ключ</h2>
+          <p>
+            Разрабатываю сайты и онлайн-сервисы под ключ — от идеи до полностью готового и
+            работающего результата. Объясняю все простым языком, без сложных терминов.
+          </p>
+          <div className="about-columns">
+            <div>
+              <p className="about-subtitle">Если вам нужно</p>
+              <ul className="about-list">
+                <li>Сделать сайт для бизнеса</li>
+                <li>Запустить интернет-магазин</li>
+                <li>Создать Telegram-бота</li>
+                <li>Автоматизировать рутинные задачи</li>
+                <li>Реализовать идею для онлайн-проекта</li>
+              </ul>
+            </div>
+            <div>
+              <p className="about-subtitle">Что могу разработать</p>
+              <ul className="about-list">
+                <li>Сайты и лендинги</li>
+                <li>Интернет-магазины</li>
+                <li>Telegram-боты</li>
+                <li>Сервисы с QR-кодами</li>
+                <li>Простые онлайн-сервисы и программы</li>
+                <li>Личные кабинеты, формы, онлайн-системы</li>
+              </ul>
+            </div>
+          </div>
+          <p className="about-subtitle">Работаю под ключ</p>
+          <ul className="about-list">
+            <li>Разработка</li>
+            <li>Настройка сервера</li>
+            <li>Подключение домена</li>
+            <li>Запуск проекта в интернете</li>
+          </ul>
+          <p>Подходит как для бизнеса, так и для личных проектов.</p>
         </div>
         <div className="about-card">
           <h3 className="about-card__title">Контакты</h3>
@@ -398,7 +434,7 @@ const AboutPage = () => (
                 />
               </svg>
             </span>
-            <span>@nowitsmy</span>
+            <span>@nowitismy</span>
           </a>
           <a className="about-contact" href="mailto:id30313161@gmail.com">
             <span className="about-contact__icon" aria-hidden="true">

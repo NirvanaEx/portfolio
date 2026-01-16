@@ -175,6 +175,12 @@
   background: var(--accent);
 }
 
+.about-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
 .about-text p {
   margin: 0;
 }
