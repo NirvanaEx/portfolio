@@ -591,15 +591,13 @@ const AdminPage = ({
       gallery,
     };
 
-    const isEdit = Boolean(editingId);
-
     try {
-      const saved = isEdit
+      const saved = editingId
         ? await onUpdate(editingId, nextProject)
         : await onCreate(nextProject);
       setEditingId(saved.id);
       setForm(toForm(saved));
-      pushToast(isEdit ? "Изменения сохранены" : "Проект добавлен");
+      pushToast(editingId ? "Изменения сохранены" : "Проект добавлен");
     } catch (err) {
       setError("Не удалось сохранить проект.");
       pushToast("Не удалось сохранить проект", "error");
